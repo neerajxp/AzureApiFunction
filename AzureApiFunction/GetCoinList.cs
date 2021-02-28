@@ -24,6 +24,7 @@ namespace AzureApiFunction
             ILogger log)
         {          
             CreateList();
+            int rounding = 2;
             try
             {
                 log.LogInformation("Coin query started.");
@@ -47,15 +48,15 @@ namespace AzureApiFunction
                         id = val.id,
                         name = val.name,
                         symbol = val.symbol,
-                        price = Math.Round(val.quote.USD.price,3),
+                        price = Math.Round(val.quote.USD.price, rounding),
                         last_updated = val.last_updated,
                         rank = val.cmc_rank,
-                        market_cap = Math.Round(val.quote.USD.market_cap, 3),
-                        volume_24h = Math.Round(val.quote.USD.volume_24h, 3),
-                        percent_change_1h = Math.Round(val.quote.USD.percent_change_1h, 3),
-                        percent_change_24h = Math.Round(val.quote.USD.percent_change_24h, 3),
-                        percent_change_30d = Math.Round(val.quote.USD.percent_change_30d, 3),
-                        percent_change_7d = Math.Round(val.quote.USD.percent_change_7d, 3)
+                        market_cap = Math.Round(val.quote.USD.market_cap, rounding),
+                        volume_24h = Math.Round(val.quote.USD.volume_24h, rounding),
+                        percent_change_1h = Math.Round(val.quote.USD.percent_change_1h, rounding),
+                        percent_change_24h = Math.Round(val.quote.USD.percent_change_24h, rounding),
+                        percent_change_30d = Math.Round(val.quote.USD.percent_change_30d, rounding),
+                        percent_change_7d = Math.Round(val.quote.USD.percent_change_7d, rounding)
                         });
                     }
                 }
