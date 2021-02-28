@@ -47,15 +47,16 @@ namespace AzureApiFunction
                         id = val.id,
                         name = val.name,
                         symbol = val.symbol,
-                        price = val.quote.USD.price,
+                        price = Math.Round(val.quote.USD.price,3),
                         last_updated = val.last_updated,
                         rank = val.cmc_rank,
-                        market_cap = val.quote.USD.market_cap,
-                        volume_24h = val.quote.USD.volume_24h,
-                        percent_change_1h = val.quote.USD.percent_change_1h,
-                        percent_change_24h = val.quote.USD.percent_change_24h,
-                        percent_change_30d = val.quote.USD.percent_change_30d,
-                        percent_change_7d = val.quote.USD.percent_change_7d });
+                        market_cap = Math.Round(val.quote.USD.market_cap, 3),
+                        volume_24h = Math.Round(val.quote.USD.volume_24h, 3),
+                        percent_change_1h = Math.Round(val.quote.USD.percent_change_1h, 3),
+                        percent_change_24h = Math.Round(val.quote.USD.percent_change_24h, 3),
+                        percent_change_30d = Math.Round(val.quote.USD.percent_change_30d, 3),
+                        percent_change_7d = Math.Round(val.quote.USD.percent_change_7d, 3)
+                        });
                     }
                 }
                 var sz = JsonConvert.SerializeObject(ls);
