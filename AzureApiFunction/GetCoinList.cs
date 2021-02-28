@@ -17,17 +17,6 @@ namespace AzureApiFunction
     public static class GetCoinList
     {
         public static ArrayList coins;
-        public static void CreateList()
-        {
-            coins = new ArrayList();
-            coins.Add("BTC");
-            coins.Add("ETH");
-            coins.Add("XLM");
-            coins.Add("ADA");
-            coins.Add("SNX");
-            coins.Add("LTC");
-            coins.Add("XRP");
-        }
 
         [FunctionName("GetCoinList")]
         public static async Task<IActionResult> Run(
@@ -51,7 +40,23 @@ namespace AzureApiFunction
                 foreach (var s in coins)
                 {
                     var val = obj.data.Find(x => x.symbol == s.ToString());
-                    ls.Add(new CoinList() { id = val.id, name = val.name, symbol = val.symbol, price = val.quote.USD.price });                    
+                    if (val != null)
+                    { 
+                        ls.Add(new CoinList() {
+                        source="cmc",
+                        id = val.id,
+                        name = val.name,
+                        symbol = val.symbol,
+                        price = val.quote.USD.price,
+                        last_updated = val.last_updated,
+                        rank = val.cmc_rank,
+                        market_cap = val.quote.USD.market_cap,
+                        volume_24h = val.quote.USD.volume_24h,
+                        percent_change_1h = val.quote.USD.percent_change_1h,
+                        percent_change_24h = val.quote.USD.percent_change_24h,
+                        percent_change_30d = val.quote.USD.percent_change_30d,
+                        percent_change_7d = val.quote.USD.percent_change_7d });
+                    }
                 }
                 var sz = JsonConvert.SerializeObject(ls);
                 log.LogInformation("Coin query processed successfully.");
@@ -63,14 +68,69 @@ namespace AzureApiFunction
                 return null;
             }            
         }
+
+        public static void CreateList()
+        {
+            coins = new ArrayList();
+            coins.Add("BTC");
+            coins.Add("ETH");
+            coins.Add("LTC");
+            coins.Add("LINK");
+            coins.Add("XLM");
+            coins.Add("USDC");
+            coins.Add("BCH");
+            coins.Add("UNI");
+            coins.Add("WBTC");
+            coins.Add("AAVE");
+            coins.Add("ATOM");
+            coins.Add("EOS");
+            coins.Add("XTZ");
+            coins.Add("DAI");
+            coins.Add("SNX");
+            coins.Add("ALGO");
+            coins.Add("MKT");
+            coins.Add("DASH");
+            coins.Add("GRT");
+            coins.Add("COMP");
+            coins.Add("ZEC");
+            coins.Add("ETC");
+            coins.Add("YFI");
+            coins.Add("UMA");
+            coins.Add("REN");
+            coins.Add("ZRX");
+            coins.Add("BAT");
+            coins.Add("CGLD");
+            coins.Add("BNT");
+            coins.Add("LRC");
+            coins.Add("OMG");
+            coins.Add("MANA");
+            coins.Add("KNC");
+            coins.Add("NU");
+            coins.Add("REP");
+            coins.Add("BAND");
+            coins.Add("BAL");
+            coins.Add("CVC");
+            coins.Add("NMR");
+            coins.Add("OXT");
+            coins.Add("DNT");
+        }
     }
 
     public class CoinList
     {
+        public string source { get; set; }
         public int id { get; set; }
         public string name { get; set; }
         public string symbol { get; set; }
         public double price { get; set; }
+        public DateTime last_updated { get; set; }
+        public double volume_24h { get; set; }
+        public double percent_change_1h { get; set; }
+        public double percent_change_24h { get; set; }
+        public double percent_change_7d { get; set; }
+        public double percent_change_30d { get; set; }
+        public double market_cap { get; set; }
+        public int rank { get; set; }
     }
 
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
