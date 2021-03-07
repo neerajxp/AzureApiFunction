@@ -26,10 +26,15 @@ namespace AzureApiFunction
             int count = 2;
             
             List<NewsModel> nl = new List<NewsModel>();
-           
+
+            await FinanceMagnates(nl, count);
+            await Minergate(nl, count);
             await CoinTelegraph(nl, count);
             await TheVerge(nl, count);
-            await BitcoinNews(nl, count);
+            await BitcoinNews(nl, count);            
+            await CryptoNinjas(nl, count);
+            await  NewsBTC(nl, count);
+
 
             var sz = JsonConvert.SerializeObject(nl);
 
@@ -150,6 +155,200 @@ namespace AzureApiFunction
                     nl.Add(new NewsModel() { id = id, newssource = "Bitcoin News", source = "bitcoinnews",
                         thumbnail = thumbnail, headline = title, newsurl = url 
                     , published= published, author=author});
+                    id = id + 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+     
+        private static async Task Minergate(List<NewsModel> nl, int count)
+        {
+            try
+            {
+                string apiResponse;
+                using (var http = new HttpClient())
+                {
+                    using (var response =
+                        await http.GetAsync("https://minergate.com/blog/feed"))
+                    {
+                        apiResponse = await response.Content.ReadAsStringAsync();
+                    }
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(new System.IO.StringReader(apiResponse));
+                XmlNodeList item = xmlDoc.GetElementsByTagName("item");
+                count = item.Count < count ? item.Count : count;
+                for (int i = 0; i < count; i++)
+                {
+                    string title = item[i].ChildNodes[0].InnerText;
+                    string url = item[i].ChildNodes[1].InnerText;
+                    string author = "";
+                    string published = item[i].ChildNodes[2].InnerText;
+                    int st = item[i].InnerText.IndexOf("https://blog.minergate.com/wp-content/");
+                    int en = item[i].InnerText.IndexOf(".png") + 4;
+                    string thumbnail = item[i].InnerText.Substring(st, en - st);
+                    nl.Add(new NewsModel()
+                    {
+                        id = id,
+                        newssource = "Minergates",
+                        source = "minergate",
+                        thumbnail = thumbnail,
+                        headline = title,
+                        newsurl = url
+                    ,
+                        published = published,
+                        author = author
+                    });
+                    id = id + 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+
+       
+        private static async Task NewsBTC(List<NewsModel> nl, int count)
+        {
+            try
+            {
+                string apiResponse;
+                using (var http = new HttpClient())
+                {
+                    using (var response =
+                        await http.GetAsync("http://www.newsbtc.com/feed"))
+                    {
+                        apiResponse = await response.Content.ReadAsStringAsync();
+                    }
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(new System.IO.StringReader(apiResponse));
+                XmlNodeList item = xmlDoc.GetElementsByTagName("item");
+                count = item.Count < count ? item.Count : count;
+                for (int i = 0; i < count; i++)
+                {
+                    string title = item[i].ChildNodes[0].InnerText;
+                    string url = item[i].ChildNodes[1].InnerText;
+                    string author = "";
+                    string published = item[i].ChildNodes[2].InnerText;
+                    int st = item[i].InnerText.IndexOf("https://www.newsbtc.com/wp-content/");
+                    int en = item[i].InnerText.IndexOf(".png") + 4;
+                    string thumbnail = item[i].InnerText.Substring(st, en - st);
+                    nl.Add(new NewsModel()
+                    {
+                        id = id,
+                        newssource = "NewsBTC",
+                        source = "newsbtc",
+                        thumbnail = thumbnail,
+                        headline = title,
+                        newsurl = url
+                    ,
+                        published = published,
+                        author = author
+                    });
+                    id = id + 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+        private static async Task CryptoNinjas(List<NewsModel> nl, int count)
+        {
+            try
+            {
+                string apiResponse;
+                using (var http = new HttpClient())
+                {
+                    using (var response =
+                        await http.GetAsync("http://www.cryptoninjas.net/feed/"))
+                    {
+                        apiResponse = await response.Content.ReadAsStringAsync();
+                    }
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(new System.IO.StringReader(apiResponse));
+                XmlNodeList item = xmlDoc.GetElementsByTagName("item");
+                count = item.Count < count ? item.Count : count;
+                for (int i = 0; i < count; i++)
+                {
+                    string title = item[i].ChildNodes[0].InnerText;
+                    string url = item[i].ChildNodes[1].InnerText;
+                    string author = "";
+                    string published = item[i].ChildNodes[2].InnerText;
+                    int st = item[i].InnerText.IndexOf("https://www.cryptoninjas.net/wp-content/");
+                    int en = item[i].InnerText.IndexOf(".png") + 4;
+                    string thumbnail = item[i].InnerText.Substring(st, en - st);
+                    nl.Add(new NewsModel()
+                    {
+                        id = id,
+                        newssource = "Crypto Ninjas",
+                        source = "cryptoninjas",
+                        thumbnail = thumbnail,
+                        headline = title,
+                        newsurl = url
+                    ,
+                        published = published,
+                        author = author
+                    });
+                    id = id + 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        private static async Task FinanceMagnates(List<NewsModel> nl, int count)
+        {
+            try
+            {
+                string apiResponse;
+                using (var http = new HttpClient())
+                {
+                    using (var response =
+                        await http.GetAsync("http://www.cryptoninjas.net/feed/"))
+                    {
+                        apiResponse = await response.Content.ReadAsStringAsync();
+                    }
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(new System.IO.StringReader(apiResponse));
+                XmlNodeList item = xmlDoc.GetElementsByTagName("item");
+                count = item.Count < count ? item.Count : count;
+                for (int i = 0; i < count; i++)
+                {
+                    string title = item[i].ChildNodes[0].InnerText;
+                    string url = item[i].ChildNodes[1].InnerText;
+                    string author = "";
+                    string published = item[i].ChildNodes[4].InnerText;
+                    int st = item[i].InnerText.IndexOf("https://www.cryptoninjas.net/wp-content/");
+                    int en = item[i].InnerText.IndexOf(".jpg") + 4;
+                    string thumbnail = item[i].InnerText.Substring(st, en - st);
+                    nl.Add(new NewsModel()
+                    {
+                        id = id,
+                        newssource = "Finance Magnates",
+                        source = "financemagnates",
+                        thumbnail = thumbnail,
+                        headline = title,
+                        newsurl = url
+                    ,
+                        published = published,
+                        author = author
+                    });
                     id = id + 1;
                 }
             }
