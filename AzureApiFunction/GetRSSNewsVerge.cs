@@ -13,35 +13,42 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Collections;
+
 namespace AzureApiFunction
 {
     public static class GetRSSNewsVerge
     {
-        public static int id = 1;
+        public static int rand = 50;
+        public static int count = 2;
         [FunctionName("GetRSSNewsVerge")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            int count = 2;
-            
-            List<NewsModel> nl = new List<NewsModel>();
+            Random random = new Random();
 
-            await FinanceMagnates(nl, count);
-            await Minergate(nl, count);
-            await CoinTelegraph(nl, count);
-            await TheVerge(nl, count);
-            await BitcoinNews(nl, count);            
-            await CryptoNinjas(nl, count);
-            await  NewsBTC(nl, count);
+            List<NewsModel> newsList = new List<NewsModel>();
 
+            await CoinTelegraph(newsList, count, random);
+            await BitcoinNews(newsList, count, random);
+            await FinanceMagnates(newsList, count, random);
+            await Minergate(newsList, count, random);           
+            await TheVerge(newsList, count, random);             
+            await CryptoNinjas(newsList, count, random);
+            await NewsBTC(newsList, count, random);
 
-            var sz = JsonConvert.SerializeObject(nl);
+            newsList.Sort(delegate (NewsModel news1, NewsModel news2)
+            {
+                return news1.id.CompareTo(news2.id);
+            });
+
+            var sz = JsonConvert.SerializeObject(newsList);
 
             return new OkObjectResult(sz);
         }
 
-        private static async Task TheVerge(List<NewsModel> nl, int count)
+        private static async Task TheVerge(List<NewsModel> nl, int count, Random random)
         {
             try
             {
@@ -69,11 +76,10 @@ namespace AzureApiFunction
                     string author = entry[i].ChildNodes[6].InnerText;
                     //string icon = item[i].ChildNodes[10].InnerText;
                     string published = entry[i].ChildNodes[0].InnerText;
-                    nl.Add(new NewsModel() { id = id, newssource = "The Verge", source = "verge", thumbnail = thumbnail, headline = title, newsurl = url,
+                    nl.Add(new NewsModel() { id = random.Next(rand), newssource = "The Verge", source = "verge", thumbnail = thumbnail, headline = title, newsurl = url,
                         published = published,
                         author = author
                     });
-                    id = id + 1;
                 }
             }
             catch (Exception ex)
@@ -82,7 +88,7 @@ namespace AzureApiFunction
             }
         }
 
-        private static async Task CoinTelegraph(List<NewsModel> nl, int count)
+        private static async Task CoinTelegraph(List<NewsModel> nl, int count, Random random)
         {
             try
             {
@@ -111,12 +117,11 @@ namespace AzureApiFunction
                     int st = item[i].InnerText.IndexOf("<img src=") + 10;
                     int en = item[i].InnerText.IndexOf(".jpg")+4;
                     string thumbnail = item[i].InnerText.Substring(st, en-st);
-                    nl.Add(new NewsModel() { id = id, newssource = "Coin Telegraph", source="cointelegraph", thumbnail = thumbnail, headline = title, 
+                    nl.Add(new NewsModel() { id = random.Next(rand), newssource = "Coin Telegraph", source="cointelegraph", thumbnail = thumbnail, headline = title, 
                         newsurl = url ,
                         published = published,
                         author =author
                     });
-                    id = id + 1;
                 }
             }
             catch (Exception ex)
@@ -125,7 +130,7 @@ namespace AzureApiFunction
             }
         }
 
-        private static async Task BitcoinNews(List<NewsModel> nl, int count)
+        private static async Task BitcoinNews(List<NewsModel> nl, int count, Random random)
         {
             try
             {
@@ -152,10 +157,10 @@ namespace AzureApiFunction
                     int st = item[i].InnerText.IndexOf("https://news.bitcoin.com/wp-content/");
                     int en = item[i].InnerText.IndexOf(".jpg") + 4;
                     string thumbnail = item[i].InnerText.Substring(st, en - st);
-                    nl.Add(new NewsModel() { id = id, newssource = "Bitcoin News", source = "bitcoinnews",
+                    nl.Add(new NewsModel() { id = random.Next(rand), newssource = "Bitcoin News", source = "bitcoinnews",
                         thumbnail = thumbnail, headline = title, newsurl = url 
                     , published= published, author=author});
-                    id = id + 1;
+                    
                 }
             }
             catch (Exception ex)
@@ -165,7 +170,7 @@ namespace AzureApiFunction
         }
 
      
-        private static async Task Minergate(List<NewsModel> nl, int count)
+        private static async Task Minergate(List<NewsModel> nl, int count, Random random)
         {
             try
             {
@@ -194,7 +199,7 @@ namespace AzureApiFunction
                     string thumbnail = item[i].InnerText.Substring(st, en - st);
                     nl.Add(new NewsModel()
                     {
-                        id = id,
+                        id = random.Next(rand),
                         newssource = "Minergates",
                         source = "minergate",
                         thumbnail = thumbnail,
@@ -204,7 +209,6 @@ namespace AzureApiFunction
                         published = published,
                         author = author
                     });
-                    id = id + 1;
                 }
             }
             catch (Exception ex)
@@ -215,7 +219,7 @@ namespace AzureApiFunction
 
 
        
-        private static async Task NewsBTC(List<NewsModel> nl, int count)
+        private static async Task NewsBTC(List<NewsModel> nl, int count, Random random)
         {
             try
             {
@@ -244,7 +248,7 @@ namespace AzureApiFunction
                     string thumbnail = item[i].InnerText.Substring(st, en - st);
                     nl.Add(new NewsModel()
                     {
-                        id = id,
+                        id = random.Next(rand),
                         newssource = "NewsBTC",
                         source = "newsbtc",
                         thumbnail = thumbnail,
@@ -253,8 +257,7 @@ namespace AzureApiFunction
                     ,
                         published = published,
                         author = author
-                    });
-                    id = id + 1;
+                    });                    
                 }
             }
             catch (Exception ex)
@@ -262,7 +265,7 @@ namespace AzureApiFunction
                 Console.WriteLine(ex.ToString());
             }
         }
-        private static async Task CryptoNinjas(List<NewsModel> nl, int count)
+        private static async Task CryptoNinjas(List<NewsModel> nl, int count, Random random)
         {
             try
             {
@@ -291,7 +294,7 @@ namespace AzureApiFunction
                     string thumbnail = item[i].InnerText.Substring(st, en - st);
                     nl.Add(new NewsModel()
                     {
-                        id = id,
+                        id = random.Next(rand),
                         newssource = "Crypto Ninjas",
                         source = "cryptoninjas",
                         thumbnail = thumbnail,
@@ -301,7 +304,6 @@ namespace AzureApiFunction
                         published = published,
                         author = author
                     });
-                    id = id + 1;
                 }
             }
             catch (Exception ex)
@@ -310,7 +312,7 @@ namespace AzureApiFunction
             }
         }
 
-        private static async Task FinanceMagnates(List<NewsModel> nl, int count)
+        private static async Task FinanceMagnates(List<NewsModel> nl, int count, Random random)
         {
             try
             {
@@ -339,7 +341,7 @@ namespace AzureApiFunction
                     string thumbnail = item[i].InnerText.Substring(st, en - st);
                     nl.Add(new NewsModel()
                     {
-                        id = id,
+                        id = random.Next(rand),
                         newssource = "Finance Magnates",
                         source = "financemagnates",
                         thumbnail = thumbnail,
@@ -349,7 +351,6 @@ namespace AzureApiFunction
                         published = published,
                         author = author
                     });
-                    id = id + 1;
                 }
             }
             catch (Exception ex)
