@@ -17,12 +17,14 @@ namespace AzureApiFunction
 {
     public static class GetRSSNewsVerge
     {
+        public static int id = 1;
         [FunctionName("GetRSSNewsVerge")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             int count = 2;
+            
             List<NewsModel> nl = new List<NewsModel>();
            
             await CoinTelegraph(nl, count);
@@ -53,12 +55,20 @@ namespace AzureApiFunction
                 XmlNodeList _fnames = xmlDoc.GetElementsByTagName("icon");
                 string thumbnail = _fnames[0].InnerText;
                 XmlNodeList entry = xmlDoc.GetElementsByTagName("entry");
+               
                 count = entry.Count < count ? entry.Count : count;
                 for (int i = 0; i < count; i++)
                 {
                     string title = entry[i].ChildNodes[2].InnerText;
                     string url = entry[i].ChildNodes[5].InnerText;
-                    nl.Add(new NewsModel() { id = i + 1, newssource = "The Verge", source = "verge", thumbnail = thumbnail, headline = title, newsurl = url });
+                    string author = entry[i].ChildNodes[6].InnerText;
+                    //string icon = item[i].ChildNodes[10].InnerText;
+                    string published = entry[i].ChildNodes[0].InnerText;
+                    nl.Add(new NewsModel() { id = id, newssource = "The Verge", source = "verge", thumbnail = thumbnail, headline = title, newsurl = url,
+                        published = published,
+                        author = author
+                    });
+                    id = id + 1;
                 }
             }
             catch (Exception ex)
@@ -89,12 +99,19 @@ namespace AzureApiFunction
                 {
                     string title = item[i].ChildNodes[0].InnerText;
                     string url = item[i].ChildNodes[1].InnerText;
+                    string author = item[i].ChildNodes[5].InnerText.Replace("Cointelegraph By ","");
                     //string icon = item[i].ChildNodes[10].InnerText;
+                    string published = item[i].ChildNodes[4].InnerText;
 
                     int st = item[i].InnerText.IndexOf("<img src=") + 10;
                     int en = item[i].InnerText.IndexOf(".jpg")+4;
                     string thumbnail = item[i].InnerText.Substring(st, en-st);
-                    nl.Add(new NewsModel() { id = i + 1, newssource = "ConTelegraph", source="cointelegraph", thumbnail = thumbnail, headline = title, newsurl = url });
+                    nl.Add(new NewsModel() { id = id, newssource = "Coin Telegraph", source="cointelegraph", thumbnail = thumbnail, headline = title, 
+                        newsurl = url ,
+                        published = published,
+                        author =author
+                    });
+                    id = id + 1;
                 }
             }
             catch (Exception ex)
@@ -126,13 +143,14 @@ namespace AzureApiFunction
                     string title = item[i].ChildNodes[0].InnerText;
                     string url = item[i].ChildNodes[1].InnerText;
                     string author = item[i].ChildNodes[2].InnerText;
-                    string publishedtime = item[i].ChildNodes[3].InnerText;
+                    string published = item[i].ChildNodes[3].InnerText;
                     int st = item[i].InnerText.IndexOf("https://news.bitcoin.com/wp-content/");
                     int en = item[i].InnerText.IndexOf(".jpg") + 4;
                     string thumbnail = item[i].InnerText.Substring(st, en - st);
-                    nl.Add(new NewsModel() { id = i + 1, newssource = "BitcoinNews", source = "bitcoinnews",
+                    nl.Add(new NewsModel() { id = id, newssource = "Bitcoin News", source = "bitcoinnews",
                         thumbnail = thumbnail, headline = title, newsurl = url 
-                    , published= publishedtime, author=author});
+                    , published= published, author=author});
+                    id = id + 1;
                 }
             }
             catch (Exception ex)
