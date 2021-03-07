@@ -24,10 +24,10 @@ namespace AzureApiFunction
         {
             int count = 2;
             List<NewsModel> nl = new List<NewsModel>();
-            await BitcoinNews(nl, count);
+           
             await CoinTelegraph(nl, count);
             await TheVerge(nl, count);
-          
+            await BitcoinNews(nl, count);
 
             var sz = JsonConvert.SerializeObject(nl);
 
@@ -47,19 +47,18 @@ namespace AzureApiFunction
                         apiResponse = await response.Content.ReadAsStringAsync();                        
                     }
                 }
-
                 
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(new System.IO.StringReader(apiResponse));
                 XmlNodeList _fnames = xmlDoc.GetElementsByTagName("icon");
-                string icon = _fnames[0].InnerText;
+                string thumbnail = _fnames[0].InnerText;
                 XmlNodeList entry = xmlDoc.GetElementsByTagName("entry");
                 count = entry.Count < count ? entry.Count : count;
                 for (int i = 0; i < count; i++)
                 {
                     string title = entry[i].ChildNodes[2].InnerText;
                     string url = entry[i].ChildNodes[5].InnerText;
-                    nl.Add(new NewsModel() { id = i + 1,  newsource = "The Verge", source = "verge",  icon = icon, headline = title, newsurl = url });
+                    nl.Add(new NewsModel() { id = i + 1, newssource = "The Verge", source = "verge", thumbnail = thumbnail, headline = title, newsurl = url });
                 }
             }
             catch (Exception ex)
@@ -94,8 +93,8 @@ namespace AzureApiFunction
 
                     int st = item[i].InnerText.IndexOf("<img src=") + 10;
                     int en = item[i].InnerText.IndexOf(".jpg")+4;
-                    string icon = item[i].InnerText.Substring(st, en-st);
-                    nl.Add(new NewsModel() { id = i + 1,  newsource="ConTelegraph", source="cointelegraph", icon = icon, headline = title, newsurl = url });
+                    string thumbnail = item[i].InnerText.Substring(st, en-st);
+                    nl.Add(new NewsModel() { id = i + 1, newssource = "ConTelegraph", source="cointelegraph", thumbnail = thumbnail, headline = title, newsurl = url });
                 }
             }
             catch (Exception ex)
@@ -130,8 +129,9 @@ namespace AzureApiFunction
                     string publishedtime = item[i].ChildNodes[3].InnerText;
                     int st = item[i].InnerText.IndexOf("https://news.bitcoin.com/wp-content/");
                     int en = item[i].InnerText.IndexOf(".jpg") + 4;
-                    string icon = item[i].InnerText.Substring(st, en - st);
-                    nl.Add(new NewsModel() { id = i + 1, newsource = "ConTelegraph", source = "cointelegraph", icon = icon, headline = title, newsurl = url 
+                    string thumbnail = item[i].InnerText.Substring(st, en - st);
+                    nl.Add(new NewsModel() { id = i + 1, newssource = "BitcoinNews", source = "bitcoinnews",
+                        thumbnail = thumbnail, headline = title, newsurl = url 
                     , published= publishedtime, author=author});
                 }
             }
@@ -146,11 +146,11 @@ namespace AzureApiFunction
     {        
         public string source { get; set; }
         public int id { get; set; }            
-        public string newsource { get; set; }
+        public string newssource { get; set; }
         public string headline { get; set; }
         public string content { get; set; }
         public string newsurl { get; set; }
-        public string icon { get; set; }           
+        public string thumbnail { get; set; }           
         public string published { get; set; }
         public int hrsago { get; set; }
         public string keywords { get; set; }
