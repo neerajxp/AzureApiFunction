@@ -11,7 +11,8 @@ using System.Net.Http;
 using System.Xml;
 using System.Xml.Linq;
 using System.Collections.Generic;
-
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 namespace AzureApiFunction
 {
     public static class GetRSSNewsVerge
@@ -21,6 +22,18 @@ namespace AzureApiFunction
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
+            int count = 2;
+            List<NewsModel> nl = new List<NewsModel>();
+            await CoinTelegraph(nl, count);
+            await TheVerge(nl, count);
+
+            var sz = JsonConvert.SerializeObject(nl);
+
+            return new OkObjectResult(sz);
+        }
+
+        private static async Task TheVerge(List<NewsModel> nl, int count)
+        {
             try
             {
                 string apiResponse;
@@ -29,37 +42,66 @@ namespace AzureApiFunction
                     using (var response =
                         await http.GetAsync("https://www.theverge.com/rss/index.xml"))
                     {
-                        apiResponse = await response.Content.ReadAsStringAsync();
-                        //Console.WriteLine("response");
-                        //Console.WriteLine(apiResponse);
+                        apiResponse = await response.Content.ReadAsStringAsync();                        
                     }
                 }
 
+                
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(new System.IO.StringReader(apiResponse));
                 XmlNodeList _fnames = xmlDoc.GetElementsByTagName("icon");
                 string icon = _fnames[0].InnerText;
                 XmlNodeList entry = xmlDoc.GetElementsByTagName("entry");
-                List<NewsModel> nl = new List<NewsModel>();
-                
-                for (int i=0;i<entry.Count;i++)
+                count = entry.Count < count ? entry.Count : count;
+                for (int i = 0; i < count; i++)
                 {
                     string title = entry[i].ChildNodes[2].InnerText;
-                    string url =  entry[i].ChildNodes[5].InnerText;
-                    nl.Add(new NewsModel() { id=i+1, icon=icon, headline=title, newsurl=url });    
+                    string url = entry[i].ChildNodes[5].InnerText;
+                    nl.Add(new NewsModel() { id = i + 1, icon = icon, headline = title, newsurl = url });
                 }
-
-                var sz = JsonConvert.SerializeObject(nl);
-
-                return new OkObjectResult(sz);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return null;
             }
-         
         }
+
+        private static async Task CoinTelegraph(List<NewsModel> nl, int count)
+        {
+            try
+            {
+                string apiResponse;
+                using (var http = new HttpClient())
+                {
+                    using (var response =
+                        await http.GetAsync("https://cointelegraph.com/rss"))
+                    {
+                        apiResponse = await response.Content.ReadAsStringAsync();
+                    }
+                }                
+                
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(new System.IO.StringReader(apiResponse));
+                XmlNodeList item = xmlDoc.GetElementsByTagName("item");
+                count = item.Count < count ? item.Count : count;
+                for (int i = 0; i < count; i++)
+                {
+                    string title = item[i].ChildNodes[0].InnerText;
+                    string url = item[i].ChildNodes[1].InnerText;
+                    //string icon = item[i].ChildNodes[10].InnerText;
+
+                    int st = item[i].InnerText.IndexOf("<img src=") + 10;
+                    int en = item[i].InnerText.IndexOf(".jpg")+4;
+                    string icon = item[i].InnerText.Substring(st, en-st);
+                    nl.Add(new NewsModel() { id = i + 1, icon = icon, headline = title, newsurl = url });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
     }
 
     public class NewsModel
